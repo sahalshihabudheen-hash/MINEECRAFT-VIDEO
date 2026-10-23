@@ -1,0 +1,20 @@
+<!doctype html><meta charset=utf-8><body style="margin:0;background:#222"><canvas id=c></canvas>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<script type=module>
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+try{
+const Q=new URLSearchParams(location.search);const W=+Q.get('w'),H=+Q.get('h');
+const r=new THREE.WebGLRenderer({canvas:document.getElementById('c'),preserveDrawingBuffer:true,antialias:false});r.setSize(W,H);
+const s=new THREE.Scene();s.background=new THREE.Color(0x335577);
+s.add(new THREE.AmbientLight(0xffffff,1.6));const d=new THREE.DirectionalLight(0xffffff,1.5);d.position.set(3,6,4);s.add(d);
+const g=await new GLTFLoader().loadAsync('/assets/models/ancient_city.glb');
+g.scene.scale.setScalar(30);g.scene.updateMatrixWorld(true);
+s.add(g.scene);const b=new THREE.Box3().setFromObject(g.scene);const sz=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3());
+const list=[];g.scene.traverse(o=>{if(o.isMesh){const bb=new THREE.Box3().setFromObject(o);const m=o.material;list.push({n:m.name,tris:Math.round((o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3),min:bb.min.toArray().map(x=>+x.toFixed(1)),max:bb.max.toArray().map(x=>+x.toFixed(1)),tr:m.transparent,at:m.alphaTest,side:m.side,hasMap:!!m.map});}});
+window.info={size:sz.toArray(),center:c.toArray(),min:b.min.toArray(),max:b.max.toArray(),list,img:g.scene.children[0]&&0};
+const cam=new THREE.PerspectiveCamera(40,W/H,0.5,3000);const R=sz.length();
+window.shot=(px,py,pz,tx,ty,tz)=>{cam.position.set(px,py,pz);cam.lookAt(tx,ty,tz);r.render(s,cam);return r.domElement.toDataURL('image/png');};
+window.pick=(x,y)=>{const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(x/W*2-1,-(y/H*2-1)),cam);const h=rc.intersectObject(g.scene,true)[0];return h?{p:h.point.toArray().map(v=>+v.toFixed(1)),m:h.object.material.name}:null;};window.heights=(x0,x1,z0,z1,st)=>{const rc=new THREE.Raycaster();const out=[];for(let z=z0;z<=z1;z+=st){const row=[];for(let x=x0;x<=x1;x+=st){rc.set(new THREE.Vector3(x,100,z),new THREE.Vector3(0,-1,0));const h=rc.intersectObject(g.scene,true)[0];row.push(h?Math.round(100-h.distance):-1);}out.push(row);}return out;};window.__ready=true;
+}catch(e){window.__error=String(e&&e.stack||e)}
+</script>

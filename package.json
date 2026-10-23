@@ -1,0 +1,11 @@
+{
+  "name": "sahal-pro-cinematic",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "node src/render/render-frames.js --preview",
+    "render": "node src/render/render-frames.js --full && node src/render/export-video.js"
+  },
+  "dependencies": { "three": "0.170.0", "puppeteer-core": "23.11.1", "pngjs": "7.0.0" }
+}
